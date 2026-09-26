@@ -3,273 +3,327 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light">
-  <title>Compartir mi ubicación</title>
+  <title>Aroma Café · Comparte tu ubicación</title>
 
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
-
-    html { -webkit-text-size-adjust: 100%; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: #fbf7f2;
+      color: #2c1e14;
+      line-height: 1.6;
       min-height: 100vh;
-      min-height: 100dvh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px 20px;
-      background: #ffffff;
-      color: #0f172a;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      line-height: 1.55;
-      -webkit-font-smoothing: antialiased;
     }
 
-    .tarjeta {
-      width: 100%;
-      max-width: 420px;
+    /* ---------- Cabecera ---------- */
+    .hero {
+      background: linear-gradient(135deg, #6b3e26 0%, #a0522d 100%);
+      color: #fff;
+      padding: 60px 24px 70px;
       text-align: center;
     }
 
-    h1 {
-      margin: 0 0 .5rem;
-      font-size: 1.5rem;
-      letter-spacing: -.01em;
+    .hero .logo {
+      font-size: 2.6rem;
+      margin-bottom: 8px;
     }
 
-    .intro {
-      margin: 0 0 1.5rem;
+    .hero h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -.5px;
+    }
+
+    .hero p {
+      margin-top: 10px;
+      opacity: .9;
+      font-size: 1rem;
+    }
+
+    /* ---------- Contenido ---------- */
+    .contenedor {
+      max-width: 640px;
+      margin: -40px auto 40px;
+      padding: 0 20px;
+    }
+
+    .tarjeta {
+      background: #fff;
+      border-radius: 18px;
+      padding: 28px 24px;
+      box-shadow: 0 10px 30px rgba(107, 62, 38, .12);
+      margin-bottom: 20px;
+    }
+
+    .tarjeta h2 {
+      font-size: 1.15rem;
+      margin-bottom: 14px;
+      color: #6b3e26;
+    }
+
+    /* ---------- Info del negocio ---------- */
+    .info-linea {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
       font-size: .95rem;
-      color: #64748b;
+      color: #5a4636;
+      border-bottom: 1px dashed #eee2d5;
     }
+    .info-linea:last-child { border-bottom: none; }
+    .info-linea .icono { font-size: 1.2rem; }
 
+    /* ---------- Botón principal ---------- */
     #boton {
       width: 100%;
-      padding: 14px 20px;
-      border: 0;
+      padding: 15px;
+      border: none;
       border-radius: 12px;
-      background: #2563eb;
+      background: #6b3e26;
       color: #fff;
-      font: inherit;
+      font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
-      transition: background .15s ease, transform .1s ease;
+      transition: background .2s, transform .1s;
     }
-    #boton:hover:not(:disabled) { background: #1d4ed8; }
-    #boton:active:not(:disabled) { transform: scale(.99); }
-    #boton:disabled { background: #93c5fd; cursor: progress; }
-    #boton:focus-visible { outline: 2px solid #1e3a8a; outline-offset: 2px; }
+    #boton:hover { background: #4f2c19; }
+    #boton:active { transform: scale(.98); }
+    #boton:disabled {
+      background: #b9a294;
+      cursor: wait;
+    }
 
-    .estado {
-      min-height: 1.4em;
-      margin: .9rem 0 0;
+    /* ---------- Mensajes ---------- */
+    #mensaje {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 10px;
       font-size: .9rem;
-      color: #64748b;
+      display: none;
+      word-break: break-word;
     }
-    .estado[data-tipo="error"] { color: #b91c1c; }
-    .estado[data-tipo="ok"]    { color: #15803d; }
-
-    .panel {
-      margin-top: 1.5rem;
-      padding-top: 1.25rem;
-      border-top: 1px solid #e2e8f0;
+    #mensaje.ok {
+      display: block;
+      background: #e8f5ec;
+      color: #1e6b3a;
+      border: 1px solid #b8e0c5;
+    }
+    #mensaje.error {
+      display: block;
+      background: #fdeaea;
+      color: #a12626;
+      border: 1px solid #f5c2c2;
+    }
+    #mensaje.info {
+      display: block;
+      background: #fdf6e3;
+      color: #8a6d1f;
+      border: 1px solid #f0e0a8;
     }
 
-    .datos {
+    /* ---------- Resultado con datos ---------- */
+    #resultado {
+      margin-top: 18px;
+      display: none;
+    }
+    #resultado.visible { display: block; }
+
+    .coordenadas {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: .75rem;
-      margin: 0 0 1.25rem;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
     }
-    .datos dt {
+
+    .dato {
+      background: #fbf7f2;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+    .dato span {
+      display: block;
       font-size: .7rem;
       text-transform: uppercase;
-      letter-spacing: .06em;
-      color: #64748b;
+      letter-spacing: .5px;
+      color: #9b8574;
+      margin-bottom: 4px;
     }
-    .datos dd {
-      margin: .15rem 0 0;
-      font-size: .95rem;
-      font-weight: 600;
+    .dato strong {
+      font-size: 1rem;
+      color: #2c1e14;
       font-variant-numeric: tabular-nums;
     }
 
     .acciones {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .5rem;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
     }
-    .secundario {
-      flex: 1 1 auto;
-      padding: 10px 14px;
-      border: 1px solid #e2e8f0;
+    .acciones a, .acciones button {
+      padding: 12px;
       border-radius: 10px;
+      border: 1px solid #e5d5c5;
       background: #fff;
-      color: #0f172a;
-      font: inherit;
+      color: #6b3e26;
       font-size: .9rem;
+      font-weight: 600;
       text-align: center;
       text-decoration: none;
       cursor: pointer;
-      transition: background .15s ease, border-color .15s ease;
+      transition: background .2s;
+      font-family: inherit;
     }
-    .secundario:hover { background: #f8fafc; border-color: #cbd5e1; }
-    .secundario:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+    .acciones a:hover, .acciones button:hover {
+      background: #fbf7f2;
+    }
 
-    [hidden] { display: none !important; }
+    /* ---------- Pie ---------- */
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: .8rem;
+      color: #9b8574;
+    }
   </style>
 </head>
-
 <body>
-  <main class="tarjeta">
-    <h1>Compartir mi ubicación</h1>
-    <p class="intro">
-      Pulsa el botón y acepta el permiso del navegador. Las coordenadas se calculan
-      en tu propio dispositivo: esta página no las envía a ningún servidor.
-    </p>
 
-    <button id="boton" type="button">Compartir mi ubicación</button>
+  <header class="hero">
+    <div class="logo">☕</div>
+    <h1>Aroma Café</h1>
+    <p>Café de especialidad · Repostería artesanal</p>
+  </header>
 
-    <p id="estado" class="estado" role="status" aria-live="polite"></p>
+  <main class="contenedor">
 
-    <section id="panel" class="panel" hidden aria-label="Ubicación obtenida">
-      <dl class="datos">
-        <div>
-          <dt>Latitud</dt>
-          <dd id="lat">—</dd>
-        </div>
-        <div>
-          <dt>Longitud</dt>
-          <dd id="lon">—</dd>
-        </div>
-        <div>
-          <dt>Precisión</dt>
-          <dd id="prec">—</dd>
-        </div>
-      </dl>
-
-      <div class="acciones">
-        <a id="mapa" class="secundario" href="#" target="_blank" rel="noopener noreferrer">Ver en el mapa</a>
-        <button id="copiar" class="secundario" type="button">Copiar</button>
-        <a id="whatsapp" class="secundario" href="#" target="_blank" rel="noopener noreferrer">Enviar por WhatsApp</a>
+    <!-- Información del negocio -->
+    <section class="tarjeta">
+      <h2>Visítanos</h2>
+      <div class="info-linea">
+        <span class="icono">📍</span>
+        <span>Calle Mayor 42, Centro Histórico</span>
+      </div>
+      <div class="info-linea">
+        <span class="icono">🕒</span>
+        <span>Lun – Dom · 8:00 a 21:00</span>
+      </div>
+      <div class="info-linea">
+        <span class="icono">📞</span>
+        <span>+34 600 123 456</span>
       </div>
     </section>
+
+    <!-- Compartir ubicación -->
+    <section class="tarjeta">
+      <h2>Comparte tu ubicación con nosotros</h2>
+      <p style="font-size:.9rem;color:#7a6552;margin-bottom:16px;">
+        Si necesitas que te enviemos un pedido a domicilio o quieres que te
+        guiemos hasta nuestra puerta, pulsa el botón y acepta el permiso.
+      </p>
+
+      <button id="boton" type="button">📍 Compartir mi ubicación</button>
+
+      <div id="mensaje"></div>
+
+      <div id="resultado">
+        <div class="coordenadas">
+          <div class="dato">
+            <span>Latitud</span>
+            <strong id="lat">—</strong>
+          </div>
+          <div class="dato">
+            <span>Longitud</span>
+            <strong id="lon">—</strong>
+          </div>
+        </div>
+
+        <div class="acciones">
+          <a id="verMapa" href="#" target="_blank" rel="noopener">Ver en el mapa</a>
+          <a id="enviar" href="#" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+        </div>
+      </div>
+    </section>
+
   </main>
 
+  <footer>
+    © 2025 Aroma Café · Todos los derechos reservados
+  </footer>
+
   <script>
-    (function () {
-      "use strict";
+    // Referencias a los elementos
+    var boton     = document.getElementById("boton");
+    var mensaje   = document.getElementById("mensaje");
+    var resultado = document.getElementById("resultado");
+    var latEl     = document.getElementById("lat");
+    var lonEl     = document.getElementById("lon");
+    var verMapa   = document.getElementById("verMapa");
+    var enviar    = document.getElementById("enviar");
 
-      const boton      = document.getElementById("boton");
-      const estado     = document.getElementById("estado");
-      const panel      = document.getElementById("panel");
-      const elLat      = document.getElementById("lat");
-      const elLon      = document.getElementById("lon");
-      const elPrec     = document.getElementById("prec");
-      const enlaceMapa = document.getElementById("mapa");
-      const enlaceWa   = document.getElementById("whatsapp");
-      const btnCopiar  = document.getElementById("copiar");
+    // Función auxiliar para mostrar mensajes
+    function mostrarMensaje(texto, tipo) {
+      mensaje.textContent = texto;
+      mensaje.className = tipo;
+    }
 
-      const OPCIONES = {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 0
-      };
-
-      const ERRORES = {
-        1: "Permiso denegado. Habilita la ubicación para este sitio en los ajustes del navegador y vuelve a intentarlo.",
-        2: "La ubicación no está disponible ahora mismo. Comprueba que el GPS o la conexión estén activos.",
-        3: "Se agotó el tiempo de espera. Inténtalo de nuevo en un lugar con mejor señal."
-      };
-
-      function mostrarEstado(texto, tipo) {
-        estado.textContent = texto;
-        if (tipo) {
-          estado.dataset.tipo = tipo;
-        } else {
-          delete estado.dataset.tipo;
-        }
+    // Manejar el clic del botón
+    boton.onclick = function () {
+      // 1. ¿Existe la API?
+      if (!navigator.geolocation) {
+        mostrarMensaje("Tu navegador no admite la geolocalización.", "error");
+        return;
       }
 
-      function pedirUbicacion() {
-        panel.hidden = true;
+      // 2. Preparar la interfaz
+      boton.disabled = true;
+      boton.textContent = "Obteniendo ubicación…";
+      resultado.className = "";
+      mostrarMensaje("Esperando tu autorización…", "info");
 
-        if (!("geolocation" in navigator)) {
-          mostrarEstado("Este navegador no admite la geolocalización.", "error");
-          return;
+      // 3. Pedir la posición
+      navigator.geolocation.getCurrentPosition(
+        // --- Éxito ---
+        function (pos) {
+          var lat = pos.coords.latitude;
+          var lon = pos.coords.longitude;
+
+          latEl.textContent = lat.toFixed(6);
+          lonEl.textContent = lon.toFixed(6);
+
+          var url = "https://www.google.com/maps?q=" + lat + "," + lon;
+          verMapa.href = url;
+          enviar.href = "https://wa.me/?text=" +
+            encodeURIComponent("Mi ubicación: " + url);
+
+          resultado.className = "visible";
+          mostrarMensaje("¡Ubicación obtenida correctamente!", "ok");
+
+          boton.disabled = false;
+          boton.textContent = "🔄 Actualizar ubicación";
+        },
+        // --- Error ---
+        function (err) {
+          var texto = "No se pudo obtener la ubicación.";
+          if (err.code === 1) texto = "Permiso denegado. Activa la ubicación para este sitio en tu navegador.";
+          if (err.code === 2) texto = "Ubicación no disponible. Revisa tu GPS o conexión.";
+          if (err.code === 3) texto = "Se agotó el tiempo de espera. Inténtalo de nuevo.";
+
+          mostrarMensaje(texto, "error");
+          boton.disabled = false;
+          boton.textContent = "📍 Intentar de nuevo";
+        },
+        // --- Opciones ---
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0
         }
-
-        if (!window.isSecureContext) {
-          mostrarEstado("La geolocalización solo funciona en páginas HTTPS (o en localhost).", "error");
-          return;
-        }
-
-        boton.disabled = true;
-        boton.textContent = "Obteniendo ubicación…";
-        mostrarEstado("Esperando tu autorización…");
-
-        navigator.geolocation.getCurrentPosition(exito, fallo, OPCIONES);
-      }
-
-      function exito(posicion) {
-        const lat  = posicion.coords.latitude;
-        const lon  = posicion.coords.longitude;
-        const prec = posicion.coords.accuracy;
-
-        elLat.textContent  = lat.toFixed(6);
-        elLon.textContent  = lon.toFixed(6);
-        elPrec.textContent = Number.isFinite(prec) ? "± " + Math.round(prec) + " m" : "No disponible";
-
-        const urlMapa = "https://www.google.com/maps?q=" + lat + "," + lon;
-        enlaceMapa.href = urlMapa;
-        enlaceWa.href = "https://wa.me/?text=" + encodeURIComponent("Esta es mi ubicación: " + urlMapa);
-
-        panel.hidden = false;
-        mostrarEstado("Ubicación obtenida correctamente.", "ok");
-
-        boton.disabled = false;
-        boton.textContent = "Actualizar ubicación";
-      }
-
-      function fallo(error) {
-        mostrarEstado(
-          ERRORES[error.code] || "No se pudo obtener la ubicación: " + error.message,
-          "error"
-        );
-        boton.disabled = false;
-        boton.textContent = "Intentar de nuevo";
-      }
-
-      boton.addEventListener("click", pedirUbicacion);
-
-      btnCopiar.addEventListener("click", async function () {
-        const texto = elLat.textContent + ", " + elLon.textContent;
-
-        try {
-          if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(texto);
-          } else {
-            const area = document.createElement("textarea");
-            area.value = texto;
-            area.setAttribute("readonly", "");
-            area.style.position = "fixed";
-            area.style.opacity = "0";
-            document.body.appendChild(area);
-            area.select();
-            document.execCommand("copy");
-            area.remove();
-          }
-
-          const original = btnCopiar.textContent;
-          btnCopiar.textContent = "¡Copiado!";
-          setTimeout(function () { btnCopiar.textContent = original; }, 1500);
-        } catch (e) {
-          mostrarEstado("No se pudo copiar al portapapeles.", "error");
-        }
-      });
-    })();
+      );
+    };
   </script>
+
 </body>
 </html>
