@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Compartir mi ubicación</title>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px;
+      background: #ffffff;
+      color: #0f172a;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .tarjeta {
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 .5rem;
+      font-size: 1.5rem;
+      letter-spacing: -.01em;
+    }
+
+    .intro {
+      margin: 0 0 1.5rem;
+      font-size: .95rem;
+      color: #64748b;
+    }
+
+    #boton {
+      width: 100%;
+      padding: 14px 20px;
+      border: 0;
+      border-radius: 12px;
+      background: #2563eb;
+      color: #fff;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s ease, transform .1s ease;
+    }
+    #boton:hover:not(:disabled) { background: #1d4ed8; }
+    #boton:active:not(:disabled) { transform: scale(.99); }
+    #boton:disabled { background: #93c5fd; cursor: progress; }
+    #boton:focus-visible { outline: 2px solid #1e3a8a; outline-offset: 2px; }
+
+    .estado {
+      min-height: 1.4em;
+      margin: .9rem 0 0;
+      font-size: .9rem;
+      color: #64748b;
+    }
+    .estado[data-tipo="error"] { color: #b91c1c; }
+    .estado[data-tipo="ok"]    { color: #15803d; }
+
+    .panel {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .datos {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .75rem;
+      margin: 0 0 1.25rem;
+    }
+    .datos dt {
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #64748b;
+    }
+    .datos dd {
+      margin: .15rem 0 0;
+      font-size: .95rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .acciones {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      justify-content: center;
+    }
+    .secundario {
+      flex: 1 1 auto;
+      padding: 10px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #fff;
+      color: #0f172a;
+      font: inherit;
+      font-size: .9rem;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease;
+    }
+    .secundario:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .secundario:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+
+    [hidden] { display: none !important; }
+  </style>
+</head>
+
+<body>
+  <main class="tarjeta">
+    <h1>Compartir mi ubicación</h1>
+    <p class="intro">
+      Pulsa el botón y acepta el permiso del navegador. Las coordenadas se calculan
+      en tu propio dispositivo: esta página no las envía a ningún servidor.
+    </p>
+
+    <button id="boton" type="button">Compartir mi ubicación</button>
+
+    <p id="estado" class="estado" role="status" aria-live="polite"></p>
+
+    <section id="panel" class="panel" hidden aria-label="Ubicación obtenida">
+      <dl class="datos">
+        <div>
+          <dt>Latitud</dt>
+          <dd id="lat">—</dd>
+        </div>
+        <div>
+          <dt>Longitud</dt>
+          <dd id="lon">—</dd>
+        </div>
+        <div>
+          <dt>Precisión</dt>
+          <dd id="prec">—</dd>
+        </div>
+      </dl>
+
+      <div class="acciones">
+        <a id="mapa" class="secundario" href="#" target="_blank" rel="noopener noreferrer">Ver en el mapa</a>
+        <button id="copiar" class="secundario" type="button">Copiar</button>
+        <a id="whatsapp" class="secundario" href="#" target="_blank" rel="noopener noreferrer">Enviar por WhatsApp</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const boton      = document.getElementById("boton");
+      const estado     = document.getElementById("estado");
+      const panel      = document.getElementById("panel");
+      const elLat      = document.getElementById("lat");
+      const elLon      = document.getElementById("lon");
+      const elPrec     = document.getElementById("prec");
+      const enlaceMapa = document.getElementById("mapa");
+      const enlaceWa   = document.getElementById("whatsapp");
+      const btnCopiar  = document.getElementById("copiar");
+
+      const OPCIONES = {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+      };
+
+      const ERRORES = {
+        1: "Permiso denegado. Habilita la ubicación para este sitio en los ajustes del navegador y vuelve a intentarlo.",
+        2: "La ubicación no está disponible ahora mismo. Comprueba que el GPS o la conexión estén activos.",
+        3: "Se agotó el tiempo de espera. Inténtalo de nuevo en un lugar con mejor señal."
+      };
+
+      function mostrarEstado(texto, tipo) {
+        estado.textContent = texto;
+        if (tipo) {
+          estado.dataset.tipo = tipo;
+        } else {
+          delete estado.dataset.tipo;
+        }
+      }
+
+      function pedirUbicacion() {
+        panel.hidden = true;
+
+        if (!("geolocation" in navigator)) {
+          mostrarEstado("Este navegador no admite la geolocalización.", "error");
+          return;
+        }
+
+        if (!window.isSecureContext) {
+          mostrarEstado("La geolocalización solo funciona en páginas HTTPS (o en localhost).", "error");
+          return;
+        }
+
+        boton.disabled = true;
+        boton.textContent = "Obteniendo ubicación…";
+        mostrarEstado("Esperando tu autorización…");
+
+        navigator.geolocation.getCurrentPosition(exito, fallo, OPCIONES);
+      }
+
+      function exito(posicion) {
+        const lat  = posicion.coords.latitude;
+        const lon  = posicion.coords.longitude;
+        const prec = posicion.coords.accuracy;
+
+        elLat.textContent  = lat.toFixed(6);
+        elLon.textContent  = lon.toFixed(6);
+        elPrec.textContent = Number.isFinite(prec) ? "± " + Math.round(prec) + " m" : "No disponible";
+
+        const urlMapa = "https://www.google.com/maps?q=" + lat + "," + lon;
+        enlaceMapa.href = urlMapa;
+        enlaceWa.href = "https://wa.me/?text=" + encodeURIComponent("Esta es mi ubicación: " + urlMapa);
+
+        panel.hidden = false;
+        mostrarEstado("Ubicación obtenida correctamente.", "ok");
+
+        boton.disabled = false;
+        boton.textContent = "Actualizar ubicación";
+      }
+
+      function fallo(error) {
+        mostrarEstado(
+          ERRORES[error.code] || "No se pudo obtener la ubicación: " + error.message,
+          "error"
+        );
+        boton.disabled = false;
+        boton.textContent = "Intentar de nuevo";
+      }
+
+      boton.addEventListener("click", pedirUbicacion);
+
+      btnCopiar.addEventListener("click", async function () {
+        const texto = elLat.textContent + ", " + elLon.textContent;
+
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(texto);
+          } else {
+            const area = document.createElement("textarea");
+            area.value = texto;
+            area.setAttribute("readonly", "");
+            area.style.position = "fixed";
+            area.style.opacity = "0";
+            document.body.appendChild(area);
+            area.select();
+            document.execCommand("copy");
+            area.remove();
+          }
+
+          const original = btnCopiar.textContent;
+          btnCopiar.textContent = "¡Copiado!";
+          setTimeout(function () { btnCopiar.textContent = original; }, 1500);
+        } catch (e) {
+          mostrarEstado("No se pudo copiar al portapapeles.", "error");
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
