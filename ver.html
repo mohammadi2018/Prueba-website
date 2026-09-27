@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel de ubicaciones</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: system-ui, sans-serif; background:#0f172a; color:#e2e8f0; padding:20px; }
+    h1 { font-size:1.3rem; margin-bottom:16px; color:#38bdf8; }
+    #lista { display:grid; gap:12px; }
+    .item {
+      background:#1e293b; padding:16px; border-radius:12px;
+      border-left:4px solid #0ea5e9;
+    }
+    .item .fecha { font-size:.75rem; color:#94a3b8; margin-bottom:6px; }
+    .item .coords { font-family:monospace; font-size:.95rem; color:#f1f5f9; margin-bottom:8px; }
+    .item a {
+      display:inline-block; padding:8px 14px; background:#0ea5e9; color:#fff;
+      text-decoration:none; border-radius:8px; font-size:.85rem; font-weight:600;
+    }
+    .item a:hover { background:#0284c7; }
+    .vacio { color:#64748b; text-align:center; padding:40px; }
+  </style>
+</head>
+<body>
+  <h1>📋 Ubicaciones recibidas</h1>
+  <div id="lista"><p class="vacio">Cargando...</p></div>
+
+  <script>
+    // ⬇️⬇️⬇️ MISMA URL DE FIREBASE DE ANTES ⬇️⬇️⬇️
+    var FIREBASE_URL = "https://ubicaciones-xxxxx-default-rtdb.firebaseio.com/";
+
+    var lista = document.getElementById("lista");
+
+    function cargar() {
+      fetch(FIREBASE_URL + "ubicaciones.json")
+        .then(function (r) { return r.json(); })
+        .then(function (datos) {
+          if (!datos) {
+            lista.innerHTML = '<p class="vacio">No hay ubicaciones todavía.</p>';
+            return;
+          }
+
+          // Convertir objeto a array y ordenar por fecha (más reciente primero)
+          var items = [];
+          for (var id in datos) {
+            items.push(datos[id]);
+          }
+          items.sort(function (a, b) {
+            return new Date(b.fecha) - new Date(a.fecha);
+          });
+
+          lista.innerHTML = "";
+          items.forEach(function (u) {
+            var fecha = new Date(u.fecha).toLocaleString("es-ES");
+            var url = "https://www.google.com/maps?q=" + u.lat + "," + u.lon;
+            var div = document.createElement("div");
+            div.className = "item";
+            div.innerHTML =
+              '<div class="fecha">🕒 ' + fecha + '</div>' +
+              '<div class="coords">' + u.lat.toFixed(6) + ', ' + u.lon.toFixed(6) + '</div>' +
+              '<a href="' + url + '" target="_blank" rel="noopener">Ver en Google Maps</a>';
+            lista.appendChild(div);
+          });
+        })
+        .catch(function () {
+          lista.innerHTML = '<p class="vacio">Error al cargar las ubicaciones.</p>';
+        });
+    }
+
+    cargar();
+    // Recargar cada 15 segundos automáticamente
+    setInterval(cargar, 15000);
+  </script>
+</body>
+</html>
