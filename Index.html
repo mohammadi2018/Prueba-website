@@ -3,141 +3,108 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Aroma Café · Comparte tu ubicación</title>
-
+  <title>Comparte tu ubicación</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: system-ui, -apple-system, sans-serif; background: #fbf7f2; color: #2c1e14; line-height: 1.6; min-height: 100vh; }
-    .hero { background: linear-gradient(135deg, #6b3e26 0%, #a0522d 100%); color: #fff; padding: 60px 24px 70px; text-align: center; }
-    .hero .logo { font-size: 2.6rem; margin-bottom: 8px; }
-    .hero h1 { font-size: 2rem; font-weight: 700; }
-    .hero p { margin-top: 10px; opacity: .9; font-size: 1rem; }
-    .contenedor { max-width: 640px; margin: -40px auto 40px; padding: 0 20px; }
-    .tarjeta { background: #fff; border-radius: 18px; padding: 28px 24px; box-shadow: 0 10px 30px rgba(107, 62, 38, .12); margin-bottom: 20px; }
-    .tarjeta h2 { font-size: 1.15rem; margin-bottom: 14px; color: #6b3e26; }
-    .info-linea { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: .95rem; color: #5a4636; border-bottom: 1px dashed #eee2d5; }
-    .info-linea:last-child { border-bottom: none; }
-    .info-linea .icono { font-size: 1.2rem; }
-    #boton { width: 100%; padding: 15px; border: none; border-radius: 12px; background: #6b3e26; color: #fff; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background .2s, transform .1s; }
-    #boton:hover { background: #4f2c19; }
-    #boton:active { transform: scale(.98); }
-    #boton:disabled { background: #b9a294; cursor: wait; }
-    #mensaje { margin-top: 14px; padding: 12px 14px; border-radius: 10px; font-size: .9rem; display: none; word-break: break-word; }
-    #mensaje.ok { display: block; background: #e8f5ec; color: #1e6b3a; border: 1px solid #b8e0c5; }
-    #mensaje.error { display: block; background: #fdeaea; color: #a12626; border: 1px solid #f5c2c2; }
-    #mensaje.info { display: block; background: #fdf6e3; color: #8a6d1f; border: 1px solid #f0e0a8; }
-    #resultado { margin-top: 18px; display: none; }
-    #resultado.visible { display: block; }
-    .coordenadas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .dato { background: #fbf7f2; border-radius: 10px; padding: 12px; text-align: center; }
-    .dato span { display: block; font-size: .7rem; text-transform: uppercase; color: #9b8574; margin-bottom: 4px; }
-    .dato strong { font-size: 1rem; color: #2c1e14; font-variant-numeric: tabular-nums; }
-    .acciones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .acciones a { padding: 12px; border-radius: 10px; border: 1px solid #e5d5c5; background: #fff; color: #6b3e26; font-size: .9rem; font-weight: 600; text-align: center; text-decoration: none; transition: background .2s; }
-    .acciones a:hover { background: #fbf7f2; }
-    footer { text-align: center; padding: 20px; font-size: .8rem; color: #9b8574; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      min-height: 100vh; display:flex; align-items:center; justify-content:center;
+      padding:20px; color:#0f172a;
+    }
+    .tarjeta {
+      background:#fff; width:100%; max-width:420px; border-radius:24px;
+      padding:36px 28px; box-shadow:0 20px 40px rgba(14,165,233,.15); text-align:center;
+    }
+    .icono { font-size:3.5rem; margin-bottom:12px; animation:flotar 3s ease-in-out infinite; }
+    @keyframes flotar { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+    h1 { font-size:1.5rem; color:#0c4a6e; margin-bottom:8px; }
+    .subtitulo { font-size:.95rem; color:#64748b; margin-bottom:28px; }
+    #boton {
+      width:100%; padding:16px; border:none; border-radius:14px;
+      background:#0ea5e9; color:#fff; font-size:1rem; font-weight:600;
+      cursor:pointer; transition:background .2s; font-family:inherit;
+    }
+    #boton:hover { background:#0284c7; }
+    #boton:disabled { background:#7dd3fc; cursor:wait; }
+    #mensaje { margin-top:16px; padding:12px 14px; border-radius:12px; font-size:.9rem; display:none; }
+    #mensaje.ok { display:block; background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; }
+    #mensaje.error { display:block; background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+    #mensaje.info { display:block; background:#f0f9ff; color:#075985; border:1px solid #bae6fd; }
+    .nota { margin-top:20px; font-size:.8rem; color:#94a3b8; }
   </style>
 </head>
 <body>
+  <main class="tarjeta">
+    <div class="icono">📍</div>
+    <h1>Comparte tu ubicación</h1>
+    <p class="subtitulo">Pulsa el botón para enviar tu ubicación actual.</p>
 
-  <header class="hero">
-    <div class="logo">☕</div>
-    <h1>Aroma Café</h1>
-    <p>Café de especialidad · Repostería artesanal</p>
-  </header>
+    <button id="boton" type="button">Compartir mi ubicación</button>
+    <div id="mensaje"></div>
 
-  <main class="contenedor">
-    <section class="tarjeta">
-      <h2>Visítanos</h2>
-      <div class="info-linea"><span class="icono">📍</span><span>Calle Mayor 42, Centro Histórico</span></div>
-      <div class="info-linea"><span class="icono">🕒</span><span>Lun – Dom · 8:00 a 21:00</span></div>
-      <div class="info-linea"><span class="icono">📞</span><span>+34 600 123 456</span></div>
-    </section>
-
-    <section class="tarjeta">
-      <h2>Comparte tu ubicación con nosotros</h2>
-      <p style="font-size:.9rem;color:#7a6552;margin-bottom:16px;">
-        Pulsa el botón y acepta el permiso para que podamos guiarte hasta nuestra puerta.
-      </p>
-
-      <button id="boton" type="button">📍 Compartir mi ubicación</button>
-      <div id="mensaje"></div>
-
-      <div id="resultado">
-        <div class="coordenadas">
-          <div class="dato"><span>Latitud</span><strong id="lat">—</strong></div>
-          <div class="dato"><span>Longitud</span><strong id="lon">—</strong></div>
-        </div>
-        <div class="acciones">
-          <a id="verMapa" href="#" target="_blank" rel="noopener">Ver en el mapa</a>
-          <a id="enviar" href="#" target="_blank" rel="noopener">Enviar por WhatsApp</a>
-        </div>
-      </div>
-    </section>
+    <p class="nota">Tu ubicación se envía de forma segura. No se muestra en pantalla.</p>
   </main>
 
-  <footer>© 2025 Aroma Café · Todos los derechos reservados</footer>
-
   <script>
+    // ⬇️⬇️⬇️ CAMBIA ESTA URL POR LA TUYA DE FIREBASE ⬇️⬇️⬇️
+    var FIREBASE_URL = "https://ubicaciones-xxxxx-default-rtdb.firebaseio.com/";
+
     var boton = document.getElementById("boton");
     var mensaje = document.getElementById("mensaje");
-    var resultado = document.getElementById("resultado");
-    var latEl = document.getElementById("lat");
-    var lonEl = document.getElementById("lon");
-    var verMapa = document.getElementById("verMapa");
-    var enviar = document.getElementById("enviar");
 
-    function mostrarMensaje(texto, tipo) {
+    function mostrar(texto, tipo) {
       mensaje.textContent = texto;
       mensaje.className = tipo;
     }
 
     boton.onclick = function () {
       if (!navigator.geolocation) {
-        mostrarMensaje("Tu navegador no admite la geolocalización.", "error");
+        mostrar("Tu navegador no admite la geolocalización.", "error");
         return;
       }
 
       boton.disabled = true;
       boton.textContent = "Obteniendo ubicación...";
-      resultado.className = "";
-      mostrarMensaje("Esperando tu autorización...", "info");
-
-      // AQUÍ ESTÁN LOS AJUSTES PARA MÓVILES
-      var opciones = {
-        enableHighAccuracy: false, // false usa WiFi/red, funciona mejor bajo techo
-        timeout: 30000,            // 30 segundos de espera
-        maximumAge: 0
-      };
+      mostrar("Esperando tu autorización...", "info");
 
       navigator.geolocation.getCurrentPosition(
         function (pos) {
-          var lat = pos.coords.latitude;
-          var lon = pos.coords.longitude;
+          var datos = {
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude,
+            precision: pos.coords.accuracy,
+            fecha: new Date().toISOString()
+          };
 
-          latEl.textContent = lat.toFixed(6);
-          lonEl.textContent = lon.toFixed(6);
-
-          var url = "https://www.google.com/maps?q=" + lat + "," + lon;
-          verMapa.href = url;
-          enviar.href = "https://wa.me/?text=" + encodeURIComponent("Mi ubicación: " + url);
-
-          resultado.className = "visible";
-          mostrarMensaje("¡Ubicación obtenida correctamente!", "ok");
-          boton.disabled = false;
-          boton.textContent = "🔄 Actualizar ubicación";
+          // Enviar a Firebase
+          fetch(FIREBASE_URL + "ubicaciones.json", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(datos)
+          })
+          .then(function (r) { return r.json(); })
+          .then(function () {
+            mostrar("✅ Ubicación enviada correctamente.", "ok");
+            boton.textContent = "🔄 Enviar de nuevo";
+            boton.disabled = false;
+          })
+          .catch(function () {
+            mostrar("Hubo un problema al enviar. Inténtalo de nuevo.", "error");
+            boton.textContent = "Intentar de nuevo";
+            boton.disabled = false;
+          });
         },
         function (err) {
           var texto = "No se pudo obtener la ubicación.";
-          if (err.code === 1) texto = "Permiso denegado. Ve a los ajustes de tu navegador y permite la ubicación para este sitio.";
-          if (err.code === 2) texto = "Ubicación no disponible. Revisa que el GPS esté encendido.";
-          if (err.code === 3) texto = "Se agotó el tiempo de espera. Inténtalo de nuevo.";
-
-          mostrarMensaje(texto, "error");
-          boton.disabled = false;
+          if (err.code === 1) texto = "Permiso denegado. Activa la ubicación en tu navegador.";
+          if (err.code === 2) texto = "Ubicación no disponible.";
+          if (err.code === 3) texto = "Se agotó el tiempo. Inténtalo otra vez.";
+          mostrar(texto, "error");
           boton.textContent = "📍 Intentar de nuevo";
+          boton.disabled = false;
         },
-        opciones
+        { enableHighAccuracy: false, timeout: 30000, maximumAge: 0 }
       );
     };
   </script>
